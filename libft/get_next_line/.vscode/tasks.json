@@ -1,0 +1,23 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+	  {
+		"label": "build get_next_line",
+		"type": "shell",
+		"command": "gcc",
+		"args": [
+		  "-g",
+		  "get_next_line.c",
+		  "get_next_line_utils.c",
+		  "-o",
+		  "main"
+		],
+		"group": {
+		  "kind": "build",
+		  "isDefault": true
+		},
+		"problemMatcher": ["$gcc"]
+	  }
+	]
+  }
+  

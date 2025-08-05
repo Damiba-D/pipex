@@ -1,0 +1,25 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+	  {
+		"label": "build ft_split",
+		"type": "shell",
+		"command": "gcc",
+		"args": [
+		  "-g",
+		  "-Wall",
+		  "-Wextra",
+		  "-Werror",
+		  "ft_putnbr_base.c",
+		  "libft.a",
+		  "-o",
+		  "main"
+		],
+		"group": {
+		  "kind": "build",
+		  "isDefault": true
+		},
+		"problemMatcher": ["$gcc"]
+	  }
+	]
+  }
