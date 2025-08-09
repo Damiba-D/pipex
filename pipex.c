@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddamiba <ddamiba@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 17:53:49 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/07 16:25:06 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/09 13:49:18 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,27 +19,74 @@ Child id = 0
 
 */
 
+void free_arr(char **arr)
+{
+	int i;
+
+	i = 0;
+	while(arr[i] != NULL)
+	{
+		free(arr[i]);
+		i++;
+	}
+	free(arr);
+}
+
 int main(int argc, char **argv)
 {
-    (void)argc;
-    (void)argv;
-    char *command[] = {"grep", "-E", "c$", "-", 0};
-    char *bin_file = command[0];
-    if (fork() == 0)
-    {
-        int redirect_fd = open("red_fd.txt", O_CREAT | O_TRUNC | O_WRONLY);
-        dup2(redirect_fd, STDOUT_FILENO);
-        close(redirect_fd);
-        if(execvp(bin_file, command))
-        {
-            ft_printf("Error executing %s\n", bin_file);
-            exit(EXIT_FAILURE);
-        }
-    }
-    else 
-    {
-        wait(NULL);
-        ft_printf("Done");
-    }
+	if (argc < 3)
+		return(perror("Insufficient args"), -1);
+	char *path = "/usr/bin/";
+    char **args1 = ft_split(argv[1], ' '); //{"ping", "-c", "5", "google.com", NULL};
+	char *cmd1 = ft_calloc(ft_strlen(path) + ft_strlen(args1[0]) + 1, sizeof(char));
+	ft_strlcpy(cmd1, path, ft_strlen(path) + ft_strlen(args1[0]) + 1);
+    ft_strlcat(cmd1, args1[0], ft_strlen(path) + ft_strlen(args1[0]) + 1);//"/usr/bin/ping";
+	char *env_args1[] = {NULL};
+	int fd[2];
+	if (pipe(fd) == -1)
+		return (perror("pipe error\n"), 1);
+	int pid1 = fork();
+	if (pid1 == -1)
+		return (perror("fork error\n"), 2);
+	if (pid1 == 0)
+	{
+		dup2(fd[1], STDOUT_FILENO);
+		close(fd[0]);
+		close(fd[1]);
+		if (execve(cmd1, args1, env_args1))
+		{
+			perror("Execution Error\n");
+			exit(EXIT_FAILURE);
+		}
+	}
+	free_arr(args1);
+	free(cmd1);
+	
+	int pid2 = fork();
+	if (pid2 == -1)
+		return (perror("fork error\n"), 2);
+	char **args2 = ft_split(argv[2], ' ');
+    char *cmd2 = ft_calloc(ft_strlen(path) + ft_strlen(args2[0]) + 1, sizeof(char));
+	ft_strlcpy(cmd2, path, ft_strlen(path) + ft_strlen(args2[0]) + 1);
+    ft_strlcat(cmd2, args2[0], ft_strlen(path) + ft_strlen(args2[0]) + 1);
+	char *env_args2[] = {NULL};
+	if (pid2 == 0)
+	{
+		dup2(fd[0], STDIN_FILENO);
+		close(fd[0]);
+		close(fd[1]);
+		if (execve(cmd2, args2, env_args2))
+		{
+			perror("Execution Error");
+			exit(EXIT_FAILURE);
+		}
+	}
+	free_arr(args2);
+	free(cmd2);
+	close(fd[0]);
+	close(fd[1]);
+	waitpid(pid1, NULL, 0);
+	waitpid(pid2, NULL, 0);
+	ft_printf("Main program done\n");
     return 0;
 }
