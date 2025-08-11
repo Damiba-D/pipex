@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 17:53:49 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/10 19:13:24 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/11 10:04:51 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,26 +32,25 @@ void free_arr(char **arr)
 	free(arr);
 }
 
-char *get_env_var(char *name)
+char *get_env_var(char *name, char **env)
 {
-    extern char **environ;
     int i;
     size_t len;
 
 	i = 0;
 	len = ft_strlen(name);
-    while (environ[i])
+    while (env[i])
     {
-        if (ft_strncmp(environ[i], name, len) == 0 && environ[i][len] == '=')
-            return (environ[i] + len + 1); // skip NAME=
+        if (ft_strncmp(env[i], name, len) == 0 && env[i][len] == '=')
+            return (env[i] + len + 1); // skip NAME=
         i++;
     }
     return (NULL); // not found
 }
 
-char *find_command(char *cmd)
+char *find_command(char *cmd, char **env)
 {
-    char *path_env = get_env_var("PATH");
+    char *path_env = get_env_var("PATH", env);
     if (!path_env) return NULL;
 
     char **dirs = ft_split(path_env, ':'); // from your libft
@@ -76,12 +75,12 @@ char *find_command(char *cmd)
     return NULL; // Not found
 }
 
-int cmd1_init(t_cmd *cmd_s, char *cmd_args, char *file)
+int cmd1_init(t_cmd *cmd_s, char *cmd_args, char *file, char **env)
 {
 	cmd_s->args = ft_split(cmd_args, ' ');
 	if (cmd_s->args == NULL)
 		return(ft_putstr_fd("Malloc Error\n", 2), 1);
-	cmd_s->cmd = find_command(cmd_s->args[0]);
+	cmd_s->cmd = find_command(cmd_s->args[0], env);
 	if (!cmd_s->cmd)
     	return(perror(cmd_s->cmd), 2);
 	cmd_s->pid = fork();
@@ -105,12 +104,12 @@ int cmd1_init(t_cmd *cmd_s, char *cmd_args, char *file)
 	return (0);
 }
 
-int cmd2_init(t_cmd *cmd_s, char *cmd_args, char *file)
+int cmd2_init(t_cmd *cmd_s, char *cmd_args, char *file, char **env)
 {
 	cmd_s->args = ft_split(cmd_args, ' ');
 	if (cmd_s->args == NULL)
 		return(ft_putstr_fd("Malloc Error\n", 2), 1);
-	cmd_s->cmd = find_command(cmd_s->args[0]);
+	cmd_s->cmd = find_command(cmd_s->args[0], env);
 	if (!cmd_s->cmd)
     	return(perror(cmd_s->cmd), 2);
 	cmd_s->pid = fork();
@@ -143,7 +142,7 @@ int main(int argc, char **argv, char **env)
 		return (ft_putstr_fd("pipe error\n", 2), 1);
 	if (access(argv[1], R_OK) == 0)
 	{
-		cmd1_init(&cmd_vars, argv[2], argv[1]);
+		cmd1_init(&cmd_vars, argv[2], argv[1], env);
 		if (cmd_vars.pid == 0)
 		{
 			if (execve(cmd_vars.cmd, cmd_vars.args, env))
@@ -157,7 +156,7 @@ int main(int argc, char **argv, char **env)
 	}
 	else
 		perror(argv[1]);
-	cmd2_init(&cmd_vars, argv[3], argv[4]);
+	cmd2_init(&cmd_vars, argv[3], argv[4], env);
 	if (cmd_vars.pid == 0)
 	{
 		if (execve(cmd_vars.cmd, cmd_vars.args, env))
