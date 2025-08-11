@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
+/*   By: ddamiba <ddamiba@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 17:53:49 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/11 10:35:01 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/11 16:26:51 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,12 @@ Child id = 0
 
 */
 
-void free_arr(char **arr)
+void	free_arr(char **arr)
 {
-	int i;
+	int	i;
 
 	i = 0;
-	while(arr[i] != NULL)
+	while (arr[i] != NULL)
 	{
 		free(arr[i]);
 		i++;
@@ -32,72 +32,72 @@ void free_arr(char **arr)
 	free(arr);
 }
 
-char *get_env_var(char *name, char **env)
+char	*get_env_var(char *name, char **env)
 {
-    int i;
-    size_t len;
+	int		i;
+	size_t	len;
 
 	i = 0;
 	len = ft_strlen(name);
-    while (env[i])
-    {
-        if (ft_strncmp(env[i], name, len) == 0 && env[i][len] == '=')
-            return (env[i] + len + 1); // skip NAME=
-        i++;
-    }
-    return (NULL); // not found
+	while (env[i])
+	{
+		if (ft_strncmp(env[i], name, len) == 0 && env[i][len] == '=')
+			return (env[i] + len + 1);
+		i++;
+	}
+	return (NULL);
 }
 
-char *find_command(char *cmd, char **env)
+char	*find_command(char *cmd, char **env)
 {
-	//t_search_vars vars;
-    char *path_env = get_env_var("PATH", env);
-	if (!path_env) return NULL;
-    char **dirs = ft_split(path_env, ':'); // from your libft
-    char *full_path;
-    int i = 0;
-	
+	t_search_vars	vars;
+	char			*temp;
 
-    while (dirs[i])
-    {
-        char *temp = ft_strjoin(dirs[i], "/");
-        full_path = ft_strjoin(temp, cmd);
-        free(temp);
-
-        if (access(full_path, X_OK) == 0) // Found executable
-        {
-            free_arr(dirs);
-            return full_path; // Caller frees
-        }
-        free(full_path);
-        i++;
-    }
-    free_arr(dirs);
-    return NULL; // Not found
+	vars.path_env = get_env_var("PATH", env);
+	if (!vars.path_env)
+		return (NULL);
+	vars.dirs = ft_split(vars.path_env, ':');
+	vars.full_path = NULL;
+	vars.i = 0;
+	while (vars.dirs[vars.i])
+	{
+		temp = ft_strjoin(vars.dirs[vars.i], "/");
+		vars.full_path = ft_strjoin(temp, cmd);
+		free(temp);
+		if (access(vars.full_path, X_OK) == 0)
+		{
+			free_arr(vars.dirs);
+			return (vars.full_path);
+		}
+		free(vars.full_path);
+		vars.i++;
+	}
+	free_arr(vars.dirs);
+	return (NULL);
 }
 
-int cmd1_init(t_cmd *cmd_s, char *cmd_args, char *file, char **env)
+int	cmd1_init(t_cmd *cmd_s, char *cmd_args, char *file, char **env)
 {
 	cmd_s->args = ft_split(cmd_args, ' ');
 	if (cmd_s->args == NULL)
-		return(ft_putstr_fd("Malloc Error\n", 2), 1);
+		return (ft_putstr_fd("Malloc Error\n", 2), 1);
 	cmd_s->cmd = find_command(cmd_s->args[0], env);
 	if (!cmd_s->cmd)
-    	return(perror(cmd_s->cmd), 2);
+		return (perror(cmd_s->cmd), 2);
 	cmd_s->pid = fork();
 	if (cmd_s->pid == -1)
 		return (ft_putstr_fd("fork error\n", 2), 3);
 	else if (cmd_s->pid == 0)
 	{
 		cmd_s->file_fd = open(file, O_RDONLY);
-    	if (cmd_s->file_fd < 0)
+		if (cmd_s->file_fd < 0)
 		{
-        	return(perror(file), 4);
+			return (perror(file), 4);
 		}
 		if (dup2(cmd_s->file_fd, STDIN_FILENO) == -1)
-			return(ft_putstr_fd("FDs FULL\n", 2), 5);
+			return (ft_putstr_fd("FDs FULL\n", 2), 5);
 		if (dup2(cmd_s->fd[1], STDOUT_FILENO) == -1)
-			return(ft_putstr_fd("FDs FULL\n", 2), 6);
+			return (ft_putstr_fd("FDs FULL\n", 2), 6);
 		close(cmd_s->file_fd);
 		close(cmd_s->fd[0]);
 		close(cmd_s->fd[1]);
@@ -105,33 +105,67 @@ int cmd1_init(t_cmd *cmd_s, char *cmd_args, char *file, char **env)
 	return (0);
 }
 
-int cmd2_init(t_cmd *cmd_s, char *cmd_args, char *file, char **env)
+int	cmd2_init(t_cmd *cmd_s, char *cmd_args, char *file, char **env)
 {
 	cmd_s->args = ft_split(cmd_args, ' ');
 	if (cmd_s->args == NULL)
-		return(ft_putstr_fd("Malloc Error\n", 2), 1);
+		return (ft_putstr_fd("Malloc Error\n", 2), 1);
 	cmd_s->cmd = find_command(cmd_s->args[0], env);
 	if (!cmd_s->cmd)
-    	return(perror(cmd_s->cmd), 2);
+		return (perror(cmd_s->cmd), 2);
 	cmd_s->pid = fork();
 	if (cmd_s->pid == -1)
 		return (ft_putstr_fd("fork error\n", 2), 3);
 	else if (cmd_s->pid == 0)
 	{
 		cmd_s->file_fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    	if (cmd_s->file_fd < 0)
+		if (cmd_s->file_fd < 0)
 		{
-        	return(perror(file), 4);
+			return (perror(file), 4);
 		}
 		if (dup2(cmd_s->fd[0], STDIN_FILENO) == -1)
-			return(ft_putstr_fd("FDs FULL\n", 2), 5);
+			return (ft_putstr_fd("FDs FULL\n", 2), 5);
 		if (dup2(cmd_s->file_fd, STDOUT_FILENO) == -1)
-			return(ft_putstr_fd("FDs FULL\n", 2), 6);
+			return (ft_putstr_fd("FDs FULL\n", 2), 6);
 		close(cmd_s->file_fd);
 		close(cmd_s->fd[0]);
 		close(cmd_s->fd[1]);
 	}
 	return (0);
+}
+
+void	exec_cmd(int (*cmd_init)(t_cmd *, char *, char *, char **)\
+, char **argv, char **env, t_cmd *cmd)
+{
+	cmd_init(cmd, argv[2], argv[1], env);
+	if (cmd->pid == 0)
+	{
+		if (execve(cmd->cmd, cmd->args, env))
+		{
+			perror("Execution Error\n");
+			free_arr(cmd->args);
+			free(cmd->cmd);
+			return ;
+		}
+	}
+	free_arr(cmd->args);
+	free(cmd->cmd);
+}
+
+int cmd_create(t_cmd  *ret,char *cmd_args, char **env)
+{
+	ret->args = ft_split(cmd_args, ' ');
+	if (ret->args == NULL)
+		return (ft_putstr_fd("Malloc Error\n", 2), 1);
+	ret->cmd = find_command(ret->args[0], env);
+	if (!ret->cmd)
+		return (perror(ret->cmd), 2);
+	return (0);
+}
+
+void cmd_clean()
+{
+	
 }
 
 int main(int argc, char **argv, char **env)
@@ -143,7 +177,8 @@ int main(int argc, char **argv, char **env)
 		return (ft_putstr_fd("pipe error\n", 2), 1);
 	if (access(argv[1], R_OK) == 0)
 	{
-		cmd1_init(&cmd_vars, argv[2], argv[1], env);
+		exec_cmd(cmd1_init, argv, env, &cmd_vars);
+	/* 	cmd1_init(&cmd_vars, argv[2], argv[1], env);
 		if (cmd_vars.pid == 0)
 		{
 			if (execve(cmd_vars.cmd, cmd_vars.args, env))
@@ -153,7 +188,7 @@ int main(int argc, char **argv, char **env)
 			}
 		}
 		free_arr(cmd_vars.args);
-		free(cmd_vars.cmd);
+		free(cmd_vars.cmd); */
 	}
 	else
 		perror(argv[1]);
@@ -172,5 +207,5 @@ int main(int argc, char **argv, char **env)
 	close(cmd_vars.fd[1]);
 	wait(NULL);
 	ft_printf("Main program done\n");
-    return 0;
+	return 0;
 }
