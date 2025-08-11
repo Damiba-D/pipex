@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 17:53:49 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/11 10:04:51 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/11 10:35:01 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,12 +50,13 @@ char *get_env_var(char *name, char **env)
 
 char *find_command(char *cmd, char **env)
 {
+	//t_search_vars vars;
     char *path_env = get_env_var("PATH", env);
-    if (!path_env) return NULL;
-
+	if (!path_env) return NULL;
     char **dirs = ft_split(path_env, ':'); // from your libft
-    char *full_path = NULL;
+    char *full_path;
     int i = 0;
+	
 
     while (dirs[i])
     {

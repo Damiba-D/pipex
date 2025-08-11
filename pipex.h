@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 17:53:57 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/10 18:16:02 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/11 10:28:40 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,4 +26,11 @@ typedef struct s_cmd
 	int file_fd;
 	int pid;
 }	t_cmd;
+typedef struct s_search_vars
+{
+	char *path_env;
+	char **dirs;
+	char *full_path;
+	int	i;
+}	t_search_vars;
 #endif
