@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
+/*   By: ddamiba <ddamiba@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 20:25:18 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/12 08:54:10 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/12 13:28:19 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,7 +158,7 @@ int	cmd2(t_cmd *cmd_s, int pipefd[2], char *file, char **env)
 		return (ft_putstr_fd("fork error\n", 2), 1);
 	else if (cmd_s->pid == 0)
 	{
-		fileout = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+		fileout = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		if (fileout < 0)
 			return (perror(file), cmd_clean(*cmd_s), closefds(pipefd), 2);
 		close(pipefd[1]);
@@ -181,7 +181,13 @@ int	main(int argc, char **argv, char **env)
 
 	if (argc < 5)
 		return (perror("Insufficient args"), -1);
-	cmd_create(&cmd_vars[0], argv[2], env);
+	if (access(argv[1], R_OK) == 0)
+		cmd_create(&cmd_vars[0], argv[2], env);
+	else
+	{
+		cmd_vars[0].cmd = NULL;
+		perror(argv[1]);
+	}
 	if (!cmd_create(&cmd_vars[1], argv[3], env))
 		return (cmd_clean(cmd_vars[0]), 1);
 	if (pipe(fd) == -1)
@@ -197,8 +203,8 @@ int	main(int argc, char **argv, char **env)
 		exit(EXIT_FAILURE);
 	}
 	closefds(fd);
-	waitpid(cmd_vars[0].pid, NULL, 0);
 	waitpid(cmd_vars[1].pid, NULL, 0);
+	waitpid(cmd_vars[0].pid, NULL, 0);
 	if (cmd_vars[0].pid == 0)
 		ft_printf("Child 1 program done\n");
 	else if (cmd_vars[1].pid == 0)
