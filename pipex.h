@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 17:53:57 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/11 20:19:05 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/13 00:57:41 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,8 @@ typedef struct s_cmd
 {
 	char **args;
 	char *cmd;
-	int file_fd;
+	char *file;
+	int fd;
 	int pid;
 }	t_cmd;
 typedef struct s_search_vars

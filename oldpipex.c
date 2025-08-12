@@ -5,12 +5,18 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/12 22:07:02 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/13 00:51:35 by ddamiba          ###   ########.fr       */
+/*   Created: 2025/08/11 20:25:18 by ddamiba           #+#    #+#             */
+/*   Updated: 2025/08/12 21:50:27 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
+
+/* 
+After fork:
+Parent id = (random)
+Child id = 0 
+*/
 
 void	free_arr(char **arr)
 {
@@ -85,10 +91,24 @@ int	cmd_create(t_cmd *cmd_s, char *cmd_args, char **env)
 		return (perror(cmd_s->args[0]), free_arr(cmd_s->args), 0);
 	return (1);
 }
+
 void	cmd_clean(t_cmd cmd)
 {
 	free_arr(cmd.args);
 	free(cmd.cmd);
+}
+
+void	clean_type_1(char *file, t_cmd cmd_s, int pipefd[2])
+{
+	cmd_clean(cmd_s);
+	closefds(pipefd);
+	perror(file);
+}
+
+void	cleanall(t_cmd cmd[2])
+{
+	cmd_clean(cmd[0]);
+	cmd_clean(cmd[1]);
 }
 
 void	exec_cmd(t_cmd cmd, char **env)
@@ -101,67 +121,60 @@ void	exec_cmd(t_cmd cmd, char **env)
 	}
 }
 
-void	clean_type_1(char *file, t_cmd cmd_s, int pipefd[2])
+int	cmd1(t_cmd *cmd_s, int pipefd[2], char *file, char **env)
 {
-	cmd_clean(cmd_s);
-	closefds(pipefd);
-	perror(file);
-}
-void closed(int fd)
-{
-	close(fd);
+	int	filein;
+
+	cmd_s->pid = fork();
+	if (cmd_s->pid == -1)
+		return (ft_putstr_fd("fork error\n", 2), 1);
+	else if (cmd_s->pid == 0)
+	{
+		if (cmd_s->cmd == NULL)
+			return (closefds(pipefd), 2);
+		filein = open(file, O_RDONLY);
+		if (filein < 0)
+			return (clean_type_1(file, *cmd_s, pipefd), 3);
+		close(pipefd[0]);
+		if (dup2(filein, STDIN_FILENO) == -1)
+			return (perror("dup2 error"), cmd_clean(*cmd_s), closefds(pipefd), close(filein), 4);
+		close(filein);
+		if (dup2(pipefd[1], STDOUT_FILENO) == -1)
+			return (perror("dup2 error"),cmd_clean(*cmd_s), closefds(pipefd), close(filein), 5);
+		close(pipefd[1]);
+		exec_cmd(*cmd_s, env);
+	}
+	if (cmd_s->cmd != NULL)
+		cmd_clean(*cmd_s);
+	return (0);
 }
 
-void	cmd1(t_cmd *cmd_vars, int pipe[2], char *cmd_args, char **env)
+int	cmd2(t_cmd *cmd_s, int pipefd[2], char *file, char **env)
 {
-	
-	cmd_vars->pid = fork();
-	if (cmd_vars->pid == -1)
-		return (ft_putstr_fd("fork error\n", 2));
-	if (cmd_vars->pid == 0)
-	{
-		if (access(cmd_vars->file, R_OK) == -1)
-		{
-			perror(cmd_vars->file);
-			exit(EXIT_FAILURE);
-		}
-		if (!cmd_create(cmd_vars, cmd_args, env))
-			exit(127);
-		cmd_vars->fd = open(cmd_vars->file, O_RDONLY);
-		if (cmd_vars->fd < 0)
-			return (clean_type_1(cmd_vars->file, *cmd_vars, pipe));
-		close(pipe[0]);
-		if (dup2(cmd_vars->fd, STDIN_FILENO) == -1)
-			return (perror("dup2 error"), cmd_clean(*cmd_vars), closed(pipe[1]), closed(cmd_vars->fd));
-		close(cmd_vars->fd);
-		if (dup2(pipe[1], STDOUT_FILENO) == -1)
-			return (perror("dup2 error"), cmd_clean(*cmd_vars), closed(pipe[1]));
-		close(pipe[1]);
-		exec_cmd(*cmd_vars, env);
-	}
-}
+	int	fileout;
 
-void	cmd2(t_cmd *cmd_vars, int pipe[2], char *cmd_args, char **env)
-{
-	cmd_vars->pid = fork();
-	if (cmd_vars->pid == -1)
-		return (ft_putstr_fd("fork error\n", 2));
-	if (cmd_vars->pid == 0)
+	cmd_s->pid = fork();
+	if (cmd_s->pid == -1)
+		return (ft_putstr_fd("fork error\n", 2), 1);
+	else if (cmd_s->pid == 0)
 	{
-		cmd_vars->fd = open(cmd_vars->file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		if (cmd_vars->fd < 0)
-			return (perror(cmd_vars->file), closefds(pipe));
-		if (!cmd_create(cmd_vars, cmd_args, env))
-			return (close(cmd_vars->fd), closefds(pipe), exit(127));
-		close(pipe[1]);
-		if (dup2(pipe[0], STDIN_FILENO) == -1)
-			return (perror("dup2 error"), cmd_clean(*cmd_vars), closed(pipe[0]), closed(cmd_vars->fd));
-		close(pipe[0]);
-		if (dup2(cmd_vars->fd, STDOUT_FILENO) == -1)
-			return (perror("dup2 error"), cmd_clean(*cmd_vars), closed(cmd_vars->fd));
-		close(cmd_vars->fd);
-		exec_cmd(*cmd_vars, env);
+		fileout = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		if (fileout < 0)
+			return (perror(file), cmd_clean(*cmd_s), closefds(pipefd), 2);
+		if (cmd_s->cmd == NULL)
+			return (close(fileout), closefds(pipefd), 2);
+		close(pipefd[1]);
+		if (dup2(pipefd[0], STDIN_FILENO) == -1)
+			return (perror("dup2 error"), cmd_clean(*cmd_s), closefds(pipefd), close(fileout), 3);
+		close(pipefd[0]);
+		if (dup2(fileout, STDOUT_FILENO) == -1)
+			return (perror("dup2 error"), cmd_clean(*cmd_s), closefds(pipefd), close(fileout), 4);
+		close(fileout);
+		exec_cmd(*cmd_s, env);
 	}
+	if (cmd_s->cmd != NULL)
+		cmd_clean(*cmd_s);
+	return (0);
 }
 
 int	main(int argc, char **argv, char **env)
@@ -171,18 +184,30 @@ int	main(int argc, char **argv, char **env)
 
 	if (argc < 5)
 		return (perror("Insufficient args"), -1);
+	if (access(argv[1], R_OK) == 0)
+		cmd_create(&cmd_vars[0], argv[2], env);
+	else
+	{
+		cmd_vars[0].cmd = NULL;
+		perror(argv[1]);
+	}
+	if (!cmd_create(&cmd_vars[1], argv[3], env))
+	{
+		cmd_clean(cmd_vars[0]);
+		cmd_vars[0].cmd = NULL;
+	}
 	if (pipe(fd) == -1)
 		return (ft_putstr_fd("pipe error\n", 2), 1);
-	cmd_vars[0].file = argv[1];
-	cmd_vars[0].pid = -1;
-	cmd1(&cmd_vars[0], fd, argv[2], env);
-	if (cmd_vars[0].pid == 0)
+	if(cmd1(&cmd_vars[0], fd, argv[1], env) && cmd_vars[0].pid == 0)
+	{
+		cmd_clean(cmd_vars[1]);
 		exit(EXIT_FAILURE);
-	cmd_vars[1].file = argv[4];
-	cmd_vars[0].pid = -1;
-	cmd2(&cmd_vars[1], fd, argv[3], env);
-	if (cmd_vars[1].pid == 0)
+	}
+	if(cmd2(&cmd_vars[1], fd, argv[4], env))
+	{
+		closefds(fd);
 		exit(EXIT_FAILURE);
+	}
 	closefds(fd);
 	waitpid(cmd_vars[1].pid, NULL, 0);
 	waitpid(cmd_vars[0].pid, NULL, 0);
