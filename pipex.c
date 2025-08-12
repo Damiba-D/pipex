@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 20:25:18 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/11 22:45:36 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/12 08:54:10 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,7 +119,6 @@ void	exec_cmd(t_cmd cmd, char **env)
 		cmd_clean(cmd);
 		exit(EXIT_FAILURE);
 	}
-	ft_putstr_fd("Wait i am running \n", 2);
 }
 
 int	cmd1(t_cmd *cmd_s, int pipefd[2], char *file, char **env)
@@ -131,19 +130,22 @@ int	cmd1(t_cmd *cmd_s, int pipefd[2], char *file, char **env)
 		return (ft_putstr_fd("fork error\n", 2), 1);
 	else if (cmd_s->pid == 0)
 	{
+		if (cmd_s->cmd == NULL)
+			return (closefds(pipefd), 2);
 		filein = open(file, O_RDONLY);
 		if (filein < 0)
-			return (clean_type_1(file, *cmd_s, pipefd), 2);
+			return (clean_type_1(file, *cmd_s, pipefd), 3);
 		close(pipefd[0]);
 		if (dup2(filein, STDIN_FILENO) == -1)
-			return (perror("dup2 error"), cmd_clean(*cmd_s), closefds(pipefd), close(filein), 3);
+			return (perror("dup2 error"), cmd_clean(*cmd_s), closefds(pipefd), close(filein), 4);
 		close(filein);
 		if (dup2(pipefd[1], STDOUT_FILENO) == -1)
-			return (perror("dup2 error"),cmd_clean(*cmd_s), closefds(pipefd), close(filein), 4);
+			return (perror("dup2 error"),cmd_clean(*cmd_s), closefds(pipefd), close(filein), 5);
 		close(pipefd[1]);
 		exec_cmd(*cmd_s, env);
 	}
-	cmd_clean(*cmd_s);
+	if (cmd_s->cmd != NULL)
+		cmd_clean(*cmd_s);
 	return (0);
 }
 
@@ -179,8 +181,7 @@ int	main(int argc, char **argv, char **env)
 
 	if (argc < 5)
 		return (perror("Insufficient args"), -1);
-	if (!cmd_create(&cmd_vars[0], argv[2], env))
-		return (1);
+	cmd_create(&cmd_vars[0], argv[2], env);
 	if (!cmd_create(&cmd_vars[1], argv[3], env))
 		return (cmd_clean(cmd_vars[0]), 1);
 	if (pipe(fd) == -1)
