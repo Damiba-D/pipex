@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/pipex",
-            "args": ["infile", "grep a1", "wcw -w", "outfile"],
+            "args": ["infile", "grep a1", "wc -w", "outfile"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "MIMode": "gdb",
