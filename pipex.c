@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 22:07:02 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/14 19:09:24 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/14 19:40:07 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,7 @@ int	cmd_create(t_cmd *cmd_s, char *cmd_args, char **env)
 		return (perror(cmd_s->args[0]), free_arr(cmd_s->args), 0);
 	return (1);
 }
+
 void	cmd_clean(t_cmd cmd)
 {
 	free_arr(cmd.args);
@@ -115,7 +116,6 @@ void	clean_type_1(char *file, t_cmd cmd_s, int pipefd[2])
 
 int	cmd1(t_cmd *cmd_vars, int pipe[2], char *cmd_args, char **env)
 {
-	
 	cmd_vars->pid = fork();
 	if (cmd_vars->pid == -1)
 		return (ft_putstr_fd("fork error\n", 2), 1);
@@ -186,15 +186,15 @@ int	cmd2(t_cmd *cmd_vars, int pipe[2], char *cmd_args, char **env)
 
 void	child_exit(t_cmd *cmd_vars, int exit_code)
 {
-    free(cmd_vars);
-    exit(exit_code);
+	free(cmd_vars);
+	exit(exit_code);
 }
 
 void	parent_exit(int i, int last_pid, t_cmd *cmd_vars)
 {
 	int		w_status;
 	int		exit_code;
-	pid_t 	pid;
+	pid_t	pid;
 
 	while (i >= 0)
 	{
@@ -207,29 +207,29 @@ void	parent_exit(int i, int last_pid, t_cmd *cmd_vars)
 	free(cmd_vars);
 	if (WIFEXITED(exit_code))
 		exit(WEXITSTATUS(exit_code));
-    if (WIFSIGNALED(exit_code))
+	if (WIFSIGNALED(exit_code))
 		exit(128 + WTERMSIG(exit_code));
 }
 
 int	exec_mid(t_mid_vars vars, int pipes[2][2], t_cmd *cmd_vars, int argc)
 {
-	int i;
-	int exit_code;
+	int	i;
+	int	exit_code;
 
 	i = 3;
-	while(i < argc - 2)
-    {
-        if (pipe(pipes[1]) == -1)
-            return (ft_putstr_fd("pipe error\n", 2), 1);
-        exit_code = cmd_mid(&cmd_vars[i - 2], pipes, vars.argv[i], vars.env);
+	while (i < argc - 2)
+	{
+		if (pipe(pipes[1]) == -1)
+			return (ft_putstr_fd("pipe error\n", 2), 1);
+		exit_code = cmd_mid(&cmd_vars[i - 2], pipes, vars.argv[i], vars.env);
 		if (cmd_vars[i - 2].pid == 0)
 			child_exit(cmd_vars, exit_code);
-        close(pipes[0][0]);
-    	close(pipes[1][1]);
-        pipes[0][0] = pipes[1][0];
-        pipes[0][1] = pipes[1][1];
+		close(pipes[0][0]);
+		close(pipes[1][1]);
+		pipes[0][0] = pipes[1][0];
+		pipes[0][1] = pipes[1][1];
 		i++;
-    }
+	}
 	return (i);
 }
 
