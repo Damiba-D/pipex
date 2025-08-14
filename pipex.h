@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 17:53:57 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/13 00:57:41 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/14 18:36:59 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,4 +33,9 @@ typedef struct s_search_vars
 	char *full_path;
 	int	i;
 }	t_search_vars;
+typedef struct s_mid_vars
+{
+	char **argv;
+	char **env;
+}	t_mid_vars;
 #endif
