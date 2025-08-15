@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 17:53:57 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/14 18:36:59 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/15 14:40:24 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,4 +38,10 @@ typedef struct s_mid_vars
 	char **argv;
 	char **env;
 }	t_mid_vars;
+typedef struct s_data
+{
+	t_cmd	*cmd_vars;
+	char	**argv;
+	char	**env;
+}	t_data;
 #endif

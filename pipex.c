@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 22:07:02 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/14 19:40:07 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/15 20:45:27 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,97 +97,169 @@ void	cmd_clean(t_cmd cmd)
 	free(cmd.cmd);
 }
 
-void	exec_cmd(t_cmd cmd, char **env)
+void	exec_cmd(t_data cmd_data, t_cmd cmd, char **env)
 {
 	if (execve(cmd.cmd, cmd.args, env) == -1)
 	{
 		perror("Execution Error");
 		cmd_clean(cmd);
+		free(cmd_data.cmd_vars);
 		exit(EXIT_FAILURE);
 	}
 }
 
-void	clean_type_1(char *file, t_cmd cmd_s, int pipefd[2])
+void	cmd1_exit1(t_data cmd_data, int pipe[2], int exit_code)
 {
-	cmd_clean(cmd_s);
-	closefds(pipefd);
-	perror(file);
+	perror(cmd_data.cmd_vars[0].file);
+	closefds(pipe);
+	free(cmd_data.cmd_vars);
+	exit(exit_code);
 }
 
-int	cmd1(t_cmd *cmd_vars, int pipe[2], char *cmd_args, char **env)
+void	cmd1_exit2(t_data cmd_data, int pipe[2])
 {
-	cmd_vars->pid = fork();
-	if (cmd_vars->pid == -1)
-		return (ft_putstr_fd("fork error\n", 2), 1);
-	if (cmd_vars->pid == 0)
+	perror(cmd_data.cmd_vars[0].file);
+	cmd_clean(cmd_data.cmd_vars[0]);
+	closefds(pipe);
+	free(cmd_data.cmd_vars);
+	exit(EXIT_FAILURE);
+}
+
+void	cmd1_exit3(t_data cmd_data, int pipe[2], int dup_num)
+{
+	perror("child 1: dup2 error");
+	cmd_clean(cmd_data.cmd_vars[0]);
+	close(pipe[1]);
+	if (dup_num == 1)
+		close(cmd_data.cmd_vars[0].fd);
+	free(cmd_data.cmd_vars);
+	exit(EXIT_FAILURE);
+}
+
+void	cmd1(t_data cmd_data, int pipe[2], int cmd_pos)
+{
+	cmd_data.cmd_vars->pid = fork();
+	if (cmd_data.cmd_vars->pid == -1)
+		return (ft_putstr_fd("fork error\n", 2));
+	if (cmd_data.cmd_vars->pid == 0)
 	{
-		if (access(cmd_vars->file, R_OK) == -1)
-			return (perror(cmd_vars->file), closefds(pipe), 1);
-		if (!cmd_create(cmd_vars, cmd_args, env))
-			return (closefds(pipe), 127);
-		cmd_vars->fd = open(cmd_vars->file, O_RDONLY);
-		if (cmd_vars->fd < 0)
-			return (clean_type_1(cmd_vars->file, *cmd_vars, pipe), 1);
+		if (access(cmd_data.cmd_vars[0].file, R_OK) == -1)
+			cmd1_exit1(cmd_data, pipe, EXIT_FAILURE);
+		if (!cmd_create(&cmd_data.cmd_vars[0], \
+cmd_data.argv[cmd_pos], cmd_data.env))
+			cmd1_exit1(cmd_data, pipe, 127);
+		cmd_data.cmd_vars[0].fd = open(cmd_data.cmd_vars[0].file, O_RDONLY);
+		if (cmd_data.cmd_vars[0].fd < 0)
+			cmd1_exit2(cmd_data, pipe);
 		close(pipe[0]);
-		if (dup2(cmd_vars->fd, STDIN_FILENO) == -1)
-			return (perror("child 1: dup2 error"), cmd_clean(*cmd_vars), close(pipe[1]), close(cmd_vars->fd), 1);
-		close(cmd_vars->fd);
+		if (dup2(cmd_data.cmd_vars[0].fd, STDIN_FILENO) == -1)
+			cmd1_exit3(cmd_data, pipe, 1);
+		close(cmd_data.cmd_vars[0].fd);
 		if (dup2(pipe[1], STDOUT_FILENO) == -1)
-			return (perror("child 1: dup2 error"), cmd_clean(*cmd_vars), close(pipe[1]), 1);
+			cmd1_exit3(cmd_data, pipe, 2);
 		close(pipe[1]);
-		exec_cmd(*cmd_vars, env);
+		exec_cmd(cmd_data, cmd_data.cmd_vars[0], cmd_data.env);
 	}
-	return (0);
 }
 
-int	cmd_mid(t_cmd *cmd_vars, int pipes[2][2], char *cmd_args, char **env)
+void	cmdmid_exit1(t_data cmd_data, int pipes[2][2])
 {
-	cmd_vars->pid = fork();
-	if (cmd_vars->pid == -1)
-		return (ft_putstr_fd("fork error\n", 2), 1);
-	if (cmd_vars->pid == 0)
+	closefds(pipes[0]);
+	closefds(pipes[1]);
+	free(cmd_data.cmd_vars);
+	exit(127);
+}
+
+void	cmdmid_exit2(t_data cmd_data, int pipes[2][2], int arr_pos)
+{
+	perror("child mid: dup2 error");
+	cmd_clean(cmd_data.cmd_vars[arr_pos]);
+	close(pipes[0][0]);
+	closefds(pipes[1]);
+	close(cmd_data.cmd_vars[arr_pos].fd);
+	free(cmd_data.cmd_vars);
+	exit(1);
+}
+
+void	cmdmid_exit3(t_data cmd_data, int pipe_w, int arr_pos)
+{
+	perror("child mid: dup2 error");
+	cmd_clean(cmd_data.cmd_vars[arr_pos]);
+	close(pipe_w);
+	free(cmd_data.cmd_vars);
+	exit(1);
+}
+
+void	cmd_mid(t_data cmd_data, int pipes[2][2], int cmd_pos, int arr_pos)
+{
+	cmd_data.cmd_vars[arr_pos].pid = fork();
+	if (cmd_data.cmd_vars[arr_pos].pid == -1)
+		return (ft_putstr_fd("fork error\n", 2));
+	if (cmd_data.cmd_vars[arr_pos].pid == 0)
 	{
-		if (!cmd_create(cmd_vars, cmd_args, env))
-			return (closefds(pipes[0]), closefds(pipes[1]), 127);
+		if (!cmd_create(&cmd_data.cmd_vars[arr_pos], \
+cmd_data.argv[cmd_pos], cmd_data.env))
+			cmdmid_exit1(cmd_data, pipes);
 		if (dup2(pipes[0][0], STDIN_FILENO) == -1)
-			return (perror("child mid: dup2 error"), cmd_clean(*cmd_vars), close(pipes[0][0]), close(cmd_vars->fd), 1);
+			cmdmid_exit2(cmd_data, pipes, arr_pos);
 		close(pipes[0][0]);
 		close(pipes[1][0]);
 		if (dup2(pipes[1][1], STDOUT_FILENO) == -1)
-			return (perror("child mid: dup2 error"), cmd_clean(*cmd_vars), close(pipes[1][1]), 1);
+			cmdmid_exit3(cmd_data, pipes[1][1], arr_pos);
 		close(pipes[1][1]);
-		exec_cmd(*cmd_vars, env);
+		exec_cmd(cmd_data, cmd_data.cmd_vars[arr_pos], cmd_data.env);
 	}
-	return (0);
 }
 
-int	cmd2(t_cmd *cmd_vars, int pipe[2], char *cmd_args, char **env)
+void	cmd2_exit1(t_data cmd_data, int pipe[2], int arr_pos)
 {
-	cmd_vars->pid = fork();
-	if (cmd_vars->pid == -1)
-		return (ft_putstr_fd("fork error\n", 2), 1);
-	if (cmd_vars->pid == 0)
+	perror(cmd_data.cmd_vars[arr_pos].file);
+	closefds(pipe);
+	free(cmd_data.cmd_vars);
+	exit(1);
+}
+
+void	cmd2_exit2(t_data cmd_data, int pipe[2], int arr_pos)
+{
+	close(cmd_data.cmd_vars[arr_pos].fd);
+	closefds(pipe);
+	free(cmd_data.cmd_vars);
+	exit(127);
+}
+
+void	cmd2_exit3(t_data cmd_data, int pipe_r, int arr_pos, int dup_num)
+{
+	perror("child 2: dup2 error");
+	cmd_clean(cmd_data.cmd_vars[arr_pos]);
+	if (dup_num == 1)
+		close(pipe_r);
+	close(cmd_data.cmd_vars[arr_pos].fd);
+	free(cmd_data.cmd_vars);
+	exit(1);
+}
+
+void	cmd2(t_data cmd_data, int pipe[2], int cmd_pos, int arr_pos)
+{
+	cmd_data.cmd_vars[arr_pos].pid = fork();
+	if (cmd_data.cmd_vars[arr_pos].pid == -1)
+		return (ft_putstr_fd("fork error\n", 2));
+	if (cmd_data.cmd_vars[arr_pos].pid == 0)
 	{
-		cmd_vars->fd = open(cmd_vars->file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		if (cmd_vars->fd < 0)
-			return (perror(cmd_vars->file), closefds(pipe), 1);
-		if (!cmd_create(cmd_vars, cmd_args, env))
-			return (close(cmd_vars->fd), closefds(pipe), 127);
+		cmd_data.cmd_vars[arr_pos].fd = open(cmd_data.cmd_vars[arr_pos].file, \
+O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		if (cmd_data.cmd_vars[arr_pos].fd < 0)
+			cmd2_exit1(cmd_data, pipe, arr_pos);
+		if (!cmd_create(&cmd_data.cmd_vars[arr_pos], \
+cmd_data.argv[cmd_pos], cmd_data.env))
+			cmd2_exit2(cmd_data, pipe, arr_pos);
 		if (dup2(pipe[0], STDIN_FILENO) == -1)
-			return (perror("child 2: dup2 error"), cmd_clean(*cmd_vars), close(pipe[0]), close(cmd_vars->fd), 1);
+			cmd2_exit3(cmd_data, pipe[0], arr_pos, 1);
 		close(pipe[0]);
-		if (dup2(cmd_vars->fd, STDOUT_FILENO) == -1)
-			return (perror("child 2: dup2 error"), cmd_clean(*cmd_vars), close(cmd_vars->fd), 1);
-		close(cmd_vars->fd);
-		exec_cmd(*cmd_vars, env);
+		if (dup2(cmd_data.cmd_vars[arr_pos].fd, STDOUT_FILENO) == -1)
+			cmd2_exit3(cmd_data, pipe[0], arr_pos, 2);
+		close(cmd_data.cmd_vars[arr_pos].fd);
+		exec_cmd(cmd_data, cmd_data.cmd_vars[arr_pos], cmd_data.env);
 	}
-	return (0);
-}
-
-void	child_exit(t_cmd *cmd_vars, int exit_code)
-{
-	free(cmd_vars);
-	exit(exit_code);
 }
 
 void	parent_exit(int i, int last_pid, t_cmd *cmd_vars)
@@ -211,19 +283,16 @@ void	parent_exit(int i, int last_pid, t_cmd *cmd_vars)
 		exit(128 + WTERMSIG(exit_code));
 }
 
-int	exec_mid(t_mid_vars vars, int pipes[2][2], t_cmd *cmd_vars, int argc)
+int	exec_mid(t_data cmd_data, int pipes[2][2], int argc)
 {
 	int	i;
-	int	exit_code;
 
 	i = 3;
 	while (i < argc - 2)
 	{
 		if (pipe(pipes[1]) == -1)
 			return (ft_putstr_fd("pipe error\n", 2), 1);
-		exit_code = cmd_mid(&cmd_vars[i - 2], pipes, vars.argv[i], vars.env);
-		if (cmd_vars[i - 2].pid == 0)
-			child_exit(cmd_vars, exit_code);
+		cmd_mid(cmd_data, pipes, i, i - 2);
 		close(pipes[0][0]);
 		close(pipes[1][1]);
 		pipes[0][0] = pipes[1][0];
@@ -233,46 +302,28 @@ int	exec_mid(t_mid_vars vars, int pipes[2][2], t_cmd *cmd_vars, int argc)
 	return (i);
 }
 
-void	child1_cleanup(t_cmd *cmd_vars, int exit_code, int pipes[2][2])
-{
-	if (cmd_vars[0].pid == 0)
-		child_exit(cmd_vars, exit_code);
-	if (cmd_vars[0].pid > 0)
-		close(pipes[0][1]);
-}
-
-void	child2_cleanup(t_cmd *cmd_vars, int exit_code, int pipes[2][2], int cmd_num)
-{
-	if (cmd_vars[cmd_num].pid == 0)
-		child_exit(cmd_vars, exit_code);
-	if (cmd_vars[cmd_num].pid > 0)
-		closefds(pipes[0]);
-}
-
 int	main(int argc, char **argv, char **env)
 {
-	t_cmd		*cmd_vars;
+	t_data		cmd_data;
 	int			fd[2][2];
 	int			i;
-	int			exit_code;
-	t_mid_vars	mid_vars;
 
 	if (argc < 5)
 		return (ft_putstr_fd("Insufficient args\n", 2), -1);
-	cmd_vars = malloc(sizeof(t_cmd) * (argc - 3));
-	if (cmd_vars == NULL)
+	cmd_data.cmd_vars = malloc(sizeof(t_cmd) * (argc - 3));
+	if (cmd_data.cmd_vars == NULL)
 		return (ft_putstr_fd("malloc error\n", 2), 1);
 	if (pipe(fd[0]) == -1)
 		return (ft_putstr_fd("pipe error\n", 2), 1);
-	cmd_vars[0].file = argv[1];
-	exit_code = cmd1(&cmd_vars[0], fd[0], argv[2], env);
-	child1_cleanup(cmd_vars, exit_code, fd);
-	mid_vars.argv = argv;
-	mid_vars.env = env;
-	i = exec_mid(mid_vars, fd, cmd_vars, argc);
-	cmd_vars[i - 2].file = argv[argc - 1];
-	exit_code = cmd2(&cmd_vars[i - 2], fd[0], argv[argc - 2], env);
-	child2_cleanup(cmd_vars, exit_code, fd, i - 2);
-	parent_exit(i - 2, cmd_vars[i - 2].pid, cmd_vars);
+	cmd_data.argv = argv;
+	cmd_data.env = env;
+	cmd_data.cmd_vars[0].file = argv[1];
+	cmd1(cmd_data, fd[0], 2);
+	close(fd[0][1]);
+	i = exec_mid(cmd_data, fd, argc);
+	cmd_data.cmd_vars[i - 2].file = argv[argc - 1];
+	cmd2(cmd_data, fd[0], argc - 2, i - 2);
+	closefds(fd[0]);
+	parent_exit(i - 2, cmd_data.cmd_vars[i - 2].pid, cmd_data.cmd_vars);
 	return (1);
 }
