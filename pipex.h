@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
+/*   By: ddamiba <ddamiba@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 17:53:57 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/17 11:55:26 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/18 18:06:21 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ typedef struct s_cmd
 	char	*file;
 	int		fd;
 	int		pid;
+	int		create_flag;
 }	t_cmd;
 
 typedef struct s_search_vars

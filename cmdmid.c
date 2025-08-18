@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmdmid.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
+/*   By: ddamiba <ddamiba@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 09:49:34 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/17 11:54:46 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/18 17:54:31 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ static void	cmd_mid(t_data cmd_data, int pipes[2][2], int cmd_pos, int arr_pos)
 		return (ft_putstr_fd("fork error\n", 2));
 	if (cmd_data.cmd_vars[arr_pos].pid == 0)
 	{
-		if (!cmd_create(&cmd_data.cmd_vars[arr_pos], \
+		if (cmd_create(&cmd_data.cmd_vars[arr_pos], \
 cmd_data.argv[cmd_pos], cmd_data.env))
 			cmdmid_exit1(cmd_data, pipes);
 		if (dup2(pipes[0][0], STDIN_FILENO) == -1)

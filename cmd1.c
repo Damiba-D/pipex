@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd1.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
+/*   By: ddamiba <ddamiba@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 09:45:42 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/17 10:34:26 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/18 17:54:22 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ void	cmd1(t_data cmd_data, int pipe[2], int cmd_pos)
 	{
 		if (access(cmd_data.cmd_vars[0].file, R_OK) == -1)
 			cmd1_exit1(cmd_data, pipe, EXIT_FAILURE);
-		if (!cmd_create(&cmd_data.cmd_vars[0], \
+		if (cmd_create(&cmd_data.cmd_vars[0], \
 cmd_data.argv[cmd_pos], cmd_data.env))
 			cmd1_exit1(cmd_data, pipe, 127);
 		cmd_data.cmd_vars[0].fd = open(cmd_data.cmd_vars[0].file, O_RDONLY);

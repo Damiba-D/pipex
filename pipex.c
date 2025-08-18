@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
+/*   By: ddamiba <ddamiba@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 22:07:02 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/17 10:24:57 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/18 17:45:50 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int	main(int argc, char **argv, char **env)
 	int			i;
 
 	if (argc < 5)
-		return (ft_putstr_fd("Insufficient args\n", 2), -1);
+		return (ft_putstr_fd("Insufficient args\n", 2), 1);
 	cmd_data.cmd_vars = malloc(sizeof(t_cmd) * (argc - 3));
 	if (cmd_data.cmd_vars == NULL)
 		return (ft_putstr_fd("malloc error\n", 2), 1);
