@@ -6,18 +6,18 @@
 /*   By: ddamiba <ddamiba@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 09:49:34 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/18 17:54:31 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/18 18:34:35 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-static void	cmdmid_exit1(t_data cmd_data, int pipes[2][2])
+static void	cmdmid_exit1(t_data cmd_data, int pipes[2][2], int exit_code)
 {
 	closefds(pipes[0]);
 	closefds(pipes[1]);
 	free(cmd_data.cmd_vars);
-	exit(127);
+	exit(exit_code);
 }
 
 static void	cmdmid_exit2(t_data cmd_data, int pipes[2][2], int arr_pos)
@@ -47,9 +47,11 @@ static void	cmd_mid(t_data cmd_data, int pipes[2][2], int cmd_pos, int arr_pos)
 		return (ft_putstr_fd("fork error\n", 2));
 	if (cmd_data.cmd_vars[arr_pos].pid == 0)
 	{
-		if (cmd_create(&cmd_data.cmd_vars[arr_pos], \
-cmd_data.argv[cmd_pos], cmd_data.env))
-			cmdmid_exit1(cmd_data, pipes);
+		cmd_data.cmd_vars[arr_pos].create_flag = \
+cmd_create(&cmd_data.cmd_vars[arr_pos], cmd_data.argv[cmd_pos], cmd_data.env);
+		if (cmd_data.cmd_vars[arr_pos].create_flag)
+			cmdmid_exit1(cmd_data, pipes, \
+cmd_data.cmd_vars[arr_pos].create_flag);
 		if (dup2(pipes[0][0], STDIN_FILENO) == -1)
 			cmdmid_exit2(cmd_data, pipes, arr_pos);
 		close(pipes[0][0]);

@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 09:53:36 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/18 17:54:25 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/18 18:30:41 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,12 @@ static void	cmd2_exit1(t_data cmd_data, int pipe[2], int arr_pos)
 	exit(1);
 }
 
-static void	cmd2_exit2(t_data cmd_data, int pipe[2], int arr_pos)
+static void	cmd2_exit2(t_data cmd_data, int pipe[2], int arr_pos, int exit_code)
 {
 	close(cmd_data.cmd_vars[arr_pos].fd);
 	closefds(pipe);
 	free(cmd_data.cmd_vars);
-	exit(127);
+	exit(exit_code);
 }
 
 static void	cmd2_exit3(t_data cmd_data, int pipe_r, int arr_pos, int dup_num)
@@ -50,9 +50,11 @@ void	cmd2(t_data cmd_data, int pipe[2], int cmd_pos, int arr_pos)
 O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		if (cmd_data.cmd_vars[arr_pos].fd < 0)
 			cmd2_exit1(cmd_data, pipe, arr_pos);
-		if (cmd_create(&cmd_data.cmd_vars[arr_pos], \
-cmd_data.argv[cmd_pos], cmd_data.env))
-			cmd2_exit2(cmd_data, pipe, arr_pos);
+		cmd_data.cmd_vars[arr_pos].create_flag = \
+cmd_create(&cmd_data.cmd_vars[arr_pos], cmd_data.argv[cmd_pos], cmd_data.env);
+		if (cmd_data.cmd_vars[arr_pos].create_flag)
+			cmd2_exit2(cmd_data, pipe, arr_pos, \
+cmd_data.cmd_vars[arr_pos].create_flag);
 		if (dup2(pipe[0], STDIN_FILENO) == -1)
 			cmd2_exit3(cmd_data, pipe[0], arr_pos, 1);
 		close(pipe[0]);
