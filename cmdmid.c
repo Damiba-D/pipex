@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmdmid.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddamiba <ddamiba@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 09:49:34 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/18 18:34:35 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/20 22:23:13 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ int	exec_mid(t_data cmd_data, int pipes[2][2], int argc)
 {
 	int	i;
 
-	i = 3;
+	i = cmd_data.cmd1_pos + 1;
 	while (i < argc - 2)
 	{
 		if (pipe(pipes[1]) == -1)

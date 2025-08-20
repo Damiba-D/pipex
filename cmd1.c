@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd1.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddamiba <ddamiba@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 09:45:42 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/18 18:28:14 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/20 22:13:04 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ static void	cmd1_exit3(t_data cmd_data, int pipe[2], int dup_num)
 	exit(EXIT_FAILURE);
 }
 
-void	cmd1(t_data cmd_data, int pipe[2], int cmd_pos)
+void	cmd1(t_data cmd_data, int pipe[2])
 {
 	cmd_data.cmd_vars->pid = fork();
 	if (cmd_data.cmd_vars->pid == -1)
@@ -51,7 +51,7 @@ void	cmd1(t_data cmd_data, int pipe[2], int cmd_pos)
 		if (access(cmd_data.cmd_vars[0].file, R_OK) == -1)
 			cmd1_exit1(cmd_data, pipe, EXIT_FAILURE);
 		cmd_data.cmd_vars[0].create_flag = cmd_create(&cmd_data.cmd_vars[0], \
-cmd_data.argv[cmd_pos], cmd_data.env);
+cmd_data.argv[cmd_data.cmd1_pos], cmd_data.env);
 		if (cmd_data.cmd_vars[0].create_flag)
 			cmd1_exit1(cmd_data, pipe, cmd_data.cmd_vars[0].create_flag);
 		cmd_data.cmd_vars[0].fd = open(cmd_data.cmd_vars[0].file, O_RDONLY);

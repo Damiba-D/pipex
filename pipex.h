@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddamiba <ddamiba@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 17:53:57 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/18 18:06:21 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/20 22:12:46 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,8 @@ typedef struct s_data
 	t_cmd	*cmd_vars;
 	char	**argv;
 	char	**env;
+	int		cmd1_pos;
+	int		non_cmds;
 }	t_data;
 
 void	free_arr(char **arr);
@@ -57,7 +59,7 @@ char	*find_command(char *cmd, char **env);
 int		cmd_create(t_cmd *cmd_s, char *cmd_args, char **env);
 void	cmd_clean(t_cmd cmd);
 void	exec_cmd(t_data cmd_data, t_cmd cmd, char **env);
-void	cmd1(t_data cmd_data, int pipe[2], int cmd_pos);
+void	cmd1(t_data cmd_data, int pipe[2]);
 int		exec_mid(t_data cmd_data, int pipes[2][2], int argc);
 void	cmd2(t_data cmd_data, int pipe[2], int cmd_pos, int arr_pos);
 #endif
