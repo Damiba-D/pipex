@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strncmp.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
+/*   By: ddamiba <ddamiba@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/01 14:03:17 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/04/21 18:05:27 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/21 17:43:42 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ int	ft_strncmp(const char *s1, const char *s2, size_t n)
 	temp1 = (unsigned char *)s1;
 	temp2 = (unsigned char *)s2;
 	i = 0;
+	if (!s1 || !s2)
+		return (-1);
 	while ((temp1[i] != '\0' && temp2[i] != '\0') && i < n)
 	{
 		if (temp1[i] != temp2[i])
