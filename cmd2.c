@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 09:53:36 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/18 18:30:41 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/21 15:17:06 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,16 @@ static void	cmd2_exit3(t_data cmd_data, int pipe_r, int arr_pos, int dup_num)
 	exit(1);
 }
 
+static void	cmd2_open_mode(t_data *cmd_data, int arr_pos)
+{
+	if (cmd_data->h_d_mode == 0)
+		cmd_data->cmd_vars[arr_pos].fd = \
+open(cmd_data->cmd_vars[arr_pos].file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	else
+		cmd_data->cmd_vars[arr_pos].fd = \
+open(cmd_data->cmd_vars[arr_pos].file, O_WRONLY | O_CREAT | O_APPEND, 0644);
+}
+
 void	cmd2(t_data cmd_data, int pipe[2], int cmd_pos, int arr_pos)
 {
 	cmd_data.cmd_vars[arr_pos].pid = fork();
@@ -46,8 +56,7 @@ void	cmd2(t_data cmd_data, int pipe[2], int cmd_pos, int arr_pos)
 		return (ft_putstr_fd("fork error\n", 2));
 	if (cmd_data.cmd_vars[arr_pos].pid == 0)
 	{
-		cmd_data.cmd_vars[arr_pos].fd = open(cmd_data.cmd_vars[arr_pos].file, \
-O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		cmd2_open_mode(&cmd_data, arr_pos);
 		if (cmd_data.cmd_vars[arr_pos].fd < 0)
 			cmd2_exit1(cmd_data, pipe, arr_pos);
 		cmd_data.cmd_vars[arr_pos].create_flag = \

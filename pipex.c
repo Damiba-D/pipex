@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
+/*   By: ddamiba <ddamiba@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 22:07:02 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/21 12:06:15 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/21 14:50:36 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,14 @@ void	parsing(t_data *cmd_data, int argc, char **argv, char **env)
 	}
 	cmd_data->cmd1_pos = 2;
 	cmd_data->non_cmds = 3;
+	cmd_data->h_d_mode = 0;
 	cmd_data->argv = argv;
 	cmd_data->env = env;
 	if (!ft_strncmp(argv[1], "here_doc", 9))
 	{
 		cmd_data->cmd1_pos += 1;
 		cmd_data->non_cmds += 1;
+		cmd_data->h_d_mode = 1;
 	}
 }
 
