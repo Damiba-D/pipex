@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 10:19:36 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/22 13:52:54 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/22 14:47:50 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ static char	*get_env_var(char *name, char **env)
 char	*find_command(char *cmd, char **env)
 {
 	t_search_vars	vars;
-	char			*temp;
 
 	vars.path_env = get_env_var("PATH", env);
 	if (!vars.path_env)
@@ -41,19 +40,15 @@ char	*find_command(char *cmd, char **env)
 	vars.i = 0;
 	while (vars.dirs[vars.i])
 	{
-		temp = ft_strjoin(vars.dirs[vars.i], "/");
-		vars.full_path = ft_strjoin(temp, cmd);
-		free(temp);
+		vars.temp = ft_strjoin(vars.dirs[vars.i], "/");
+		vars.full_path = ft_strjoin(vars.temp, cmd);
+		free(vars.temp);
 		if (access(vars.full_path, X_OK) == 0)
-		{
-			free_arr(vars.dirs);
-			return (vars.full_path);
-		}
+			return (free_arr(vars.dirs), vars.full_path);
 		free(vars.full_path);
 		vars.i++;
 	}
-	free_arr(vars.dirs);
-	return (NULL);
+	return (free_arr(vars.dirs), NULL);
 }
 
 int	cmd_create(t_cmd *cmd_s, char *cmd_args, char **env)
