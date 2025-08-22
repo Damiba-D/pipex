@@ -3,18 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   cmd1.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddamiba <ddamiba@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 09:45:42 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/21 17:49:50 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/22 13:54:24 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-static void	cmd1_exit1(t_data cmd_data, int pipe[2])
+static void	cmd1_exit1(t_data cmd_data, int pipe[2], int file_error)
 {
-	perror(cmd_data.cmd_vars[0].file);
+	if (file_error)
+		perror(cmd_data.cmd_vars[0].file);
 	closefds(pipe);
 	free(cmd_data.cmd_vars);
 	exit(EXIT_FAILURE);
@@ -24,6 +25,8 @@ static void	cmd1_exit2(t_data cmd_data, int pipe[2], int exit_code)
 {
 	close(pipe[1]);
 	free(cmd_data.cmd_vars);
+	if (exit_code == 32)
+		exit_code = 0;
 	exit(exit_code);
 }
 
@@ -42,24 +45,23 @@ static int	h_d_handler(t_data cmd_data)
 {
 	char *line;
 	int h_d_pipe[2];
-	int i;
+	size_t	lim_len;
+	size_t	line_len;
 
 	if (pipe(h_d_pipe) == -1)
-		exit(EXIT_FAILURE);
+		return (ft_putstr_fd("pipe error\n", 2), -1);
+	lim_len = ft_strlen(cmd_data.argv[2]);
 	while (1)
 	{
 		line = get_next_line(STDIN_FILENO);
-		if (!line || !ft_strncmp(line, cmd_data.argv[2], ft_strlen(cmd_data.argv[2])))
+		if (line)
+			line_len = ft_strlen(line);
+		if (!line || (!ft_strncmp(line, cmd_data.argv[2], (lim_len)) && line_len - 1 == lim_len))
 		{
 			free(line);
 			break;
 		}
-		i = 0;
-		while (line[i])
-		{
-			write(h_d_pipe[1], &line[i], 1);
-			i++;
-		}
+		write(h_d_pipe[1], line, line_len);
 		free(line);
 	}
 	close(h_d_pipe[1]);
@@ -71,16 +73,16 @@ static void	input_mode(t_data *cmd_data, int pipe[2])
 	if (cmd_data->h_d_mode == 0)
 	{
 		if (access(cmd_data->cmd_vars[0].file, R_OK) == -1)
-			cmd1_exit1(*cmd_data, pipe);
+			cmd1_exit1(*cmd_data, pipe, 1);
 		cmd_data->cmd_vars[0].fd = open(cmd_data->cmd_vars[0].file, O_RDONLY);
 		if (cmd_data->cmd_vars[0].fd < 0)
-			cmd1_exit1(*cmd_data, pipe);
+			cmd1_exit1(*cmd_data, pipe, 1);
 	}
 	else
 	{
 		cmd_data->cmd_vars[0].fd = h_d_handler(*cmd_data);
 		if (cmd_data->cmd_vars[0].fd < 0)
-			cmd1_exit1(*cmd_data, pipe);
+			cmd1_exit1(*cmd_data, pipe, 0);
 	}
 }
 

@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 09:49:34 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/20 22:23:13 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/22 13:55:32 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ static void	cmdmid_exit1(t_data cmd_data, int pipes[2][2], int exit_code)
 	closefds(pipes[0]);
 	closefds(pipes[1]);
 	free(cmd_data.cmd_vars);
+	if (exit_code == 32)
+		exit_code = 0;
 	exit(exit_code);
 }
 
@@ -26,7 +28,6 @@ static void	cmdmid_exit2(t_data cmd_data, int pipes[2][2], int arr_pos)
 	cmd_clean(cmd_data.cmd_vars[arr_pos]);
 	close(pipes[0][0]);
 	closefds(pipes[1]);
-	close(cmd_data.cmd_vars[arr_pos].fd);
 	free(cmd_data.cmd_vars);
 	exit(1);
 }

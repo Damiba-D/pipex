@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd2.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddamiba <ddamiba@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 09:53:36 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/21 15:17:06 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/22 13:54:47 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ static void	cmd2_exit2(t_data cmd_data, int pipe[2], int arr_pos, int exit_code)
 	close(cmd_data.cmd_vars[arr_pos].fd);
 	closefds(pipe);
 	free(cmd_data.cmd_vars);
+	if (exit_code == 32)
+		exit_code = 0;
 	exit(exit_code);
 }
 
