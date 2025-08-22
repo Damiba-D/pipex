@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 10:19:36 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/22 14:47:50 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/22 15:07:52 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,16 +36,22 @@ char	*find_command(char *cmd, char **env)
 	if (!vars.path_env)
 		return (NULL);
 	vars.dirs = ft_split(vars.path_env, ':');
-	vars.full_path = NULL;
+	if (!vars.dirs)
+		return (ft_putstr_fd("Malloc Error\n", 2), NULL);
 	vars.i = 0;
 	while (vars.dirs[vars.i])
 	{
 		vars.temp = ft_strjoin(vars.dirs[vars.i], "/");
+		if (!vars.temp)
+			break;
 		vars.full_path = ft_strjoin(vars.temp, cmd);
+		if (!vars.full_path)
+			break;
 		free(vars.temp);
 		if (access(vars.full_path, X_OK) == 0)
 			return (free_arr(vars.dirs), vars.full_path);
 		free(vars.full_path);
+		vars.full_path = NULL;
 		vars.i++;
 	}
 	return (free_arr(vars.dirs), NULL);
