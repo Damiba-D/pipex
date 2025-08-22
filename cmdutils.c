@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 10:19:36 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/22 15:07:52 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/22 16:18:53 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,11 +43,11 @@ char	*find_command(char *cmd, char **env)
 	{
 		vars.temp = ft_strjoin(vars.dirs[vars.i], "/");
 		if (!vars.temp)
-			break;
+			break ;
 		vars.full_path = ft_strjoin(vars.temp, cmd);
-		if (!vars.full_path)
-			break;
 		free(vars.temp);
+		if (!vars.full_path)
+			break ;
 		if (access(vars.full_path, X_OK) == 0)
 			return (free_arr(vars.dirs), vars.full_path);
 		free(vars.full_path);
@@ -78,7 +78,7 @@ int	cmd_create(t_cmd *cmd_s, char *cmd_args, char **env)
 		{
 			cmd_s->cmd = ft_strdup(cmd_s->args[0]);
 			if (!cmd_s->cmd)
-				return (ft_putstr_fd("Malloc Error\n", 2), free_arr(cmd_s->args), 1);
+				return (ft_putstr_fd("AllocE\n", 2), free_arr(cmd_s->args), 1);
 			return (0);
 		}
 		return (perror(cmd_s->args[0]), free_arr(cmd_s->args), 126);

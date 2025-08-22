@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 10:24:42 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/17 11:54:40 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/22 16:00:14 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,12 @@ void	parent_exit(int i, int last_pid, t_cmd *cmd_vars)
 	while (i >= 0)
 	{
 		w_status = 0;
-		pid = waitpid(cmd_vars[i].pid, &w_status, 0);
-		if (pid == last_pid)
-			exit_code = w_status;
+		if (cmd_vars[i].pid > 0)
+		{
+			pid = waitpid(cmd_vars[i].pid, &w_status, 0);
+			if (pid == last_pid)
+				exit_code = w_status;
+		}
 		i--;
 	}
 	free(cmd_vars);

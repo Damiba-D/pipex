@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 09:45:42 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/22 13:54:24 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/22 16:24:46 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ static void	cmd1_exit2(t_data cmd_data, int pipe[2], int exit_code)
 	close(pipe[1]);
 	free(cmd_data.cmd_vars);
 	if (exit_code == 32)
-		exit_code = 0;
+		exit_code = 127;
 	exit(exit_code);
 }
 
@@ -43,8 +43,8 @@ static void	cmd1_exit3(t_data cmd_data, int pipe[2], int dup_num)
 
 static int	h_d_handler(t_data cmd_data)
 {
-	char *line;
-	int h_d_pipe[2];
+	char	*line;
+	int		h_d_pipe[2];
 	size_t	lim_len;
 	size_t	line_len;
 
@@ -56,10 +56,11 @@ static int	h_d_handler(t_data cmd_data)
 		line = get_next_line(STDIN_FILENO);
 		if (line)
 			line_len = ft_strlen(line);
-		if (!line || (!ft_strncmp(line, cmd_data.argv[2], (lim_len)) && line_len - 1 == lim_len))
+		if (!line || \
+(!ft_strncmp(line, cmd_data.argv[2], (lim_len)) && line_len - 1 == lim_len))
 		{
 			free(line);
-			break;
+			break ;
 		}
 		write(h_d_pipe[1], line, line_len);
 		free(line);

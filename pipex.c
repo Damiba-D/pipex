@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddamiba <ddamiba@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 22:07:02 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/21 14:50:36 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/22 15:52:12 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,11 +44,12 @@ int	main(int argc, char **argv, char **env)
 	if (cmd_data.cmd_vars == NULL)
 		return (ft_putstr_fd("malloc error\n", 2), 1);
 	if (pipe(fd[0]) == -1)
-		return (ft_putstr_fd("pipe error\n", 2), 1);
+		return (free(cmd_data.cmd_vars), ft_putstr_fd("pipe error\n", 2), 1);
 	cmd_data.cmd_vars[0].file = argv[1];
 	cmd1(cmd_data, fd[0]);
 	close(fd[0][1]);
-	exec_mid(cmd_data, fd, argc);
+	if (exec_mid(cmd_data, fd, argc))
+		return (free(cmd_data.cmd_vars), 1);
 	cmd_data.cmd_vars[arr_size - 1].file = argv[argc - 1];
 	cmd2(cmd_data, fd[0], argc - 2, arr_size - 1);
 	closefds(fd[0]);
