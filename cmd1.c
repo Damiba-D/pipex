@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 09:45:42 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/22 16:24:46 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/23 14:12:48 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,34 +39,6 @@ static void	cmd1_exit3(t_data cmd_data, int pipe[2], int dup_num)
 		close(cmd_data.cmd_vars[0].fd);
 	free(cmd_data.cmd_vars);
 	exit(EXIT_FAILURE);
-}
-
-static int	h_d_handler(t_data cmd_data)
-{
-	char	*line;
-	int		h_d_pipe[2];
-	size_t	lim_len;
-	size_t	line_len;
-
-	if (pipe(h_d_pipe) == -1)
-		return (ft_putstr_fd("pipe error\n", 2), -1);
-	lim_len = ft_strlen(cmd_data.argv[2]);
-	while (1)
-	{
-		line = get_next_line(STDIN_FILENO);
-		if (line)
-			line_len = ft_strlen(line);
-		if (!line || \
-(!ft_strncmp(line, cmd_data.argv[2], (lim_len)) && line_len - 1 == lim_len))
-		{
-			free(line);
-			break ;
-		}
-		write(h_d_pipe[1], line, line_len);
-		free(line);
-	}
-	close(h_d_pipe[1]);
-	return (h_d_pipe[0]);
 }
 
 static void	input_mode(t_data *cmd_data, int pipe[2])

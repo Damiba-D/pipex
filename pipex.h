@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 17:53:57 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/22 14:27:34 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/23 14:14:14 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,12 +55,14 @@ typedef struct s_data
 }	t_data;
 
 void	free_arr(char **arr);
+void	cmd_clean(t_cmd cmd);
 void	closefds(int pipe[2]);
 void	parent_exit(int i, int last_pid, t_cmd *cmd_vars);
 char	*find_command(char *cmd, char **env);
+char	**arg_split(char *s);
 int		cmd_create(t_cmd *cmd_s, char *cmd_args, char **env);
-void	cmd_clean(t_cmd cmd);
 void	exec_cmd(t_data cmd_data, t_cmd cmd, char **env);
+int		h_d_handler(t_data cmd_data);
 void	cmd1(t_data cmd_data, int pipe[2]);
 int		exec_mid(t_data cmd_data, int pipes[2][2], int argc);
 void	cmd2(t_data cmd_data, int pipe[2], int cmd_pos, int arr_pos);

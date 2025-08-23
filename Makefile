@@ -4,7 +4,7 @@ CFLAGS	= -g -Wall -Wextra -Werror
 
 # Project files
 NAME	= pipex
-SRCs	= gen_utils.c pipex.c cmdutils.c cmd1.c cmdmid.c cmd2.c
+SRCs	= gen_utils.c pipex.c arg_split.c cmdutils.c cmd1.c cmdmid.c cmd2.c
 OBJs	= $(addprefix obj/, $(SRCs:.c=.o))
 
 # Library paths

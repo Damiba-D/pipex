@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 10:19:36 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/22 16:18:53 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/23 14:13:15 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ int	cmd_create(t_cmd *cmd_s, char *cmd_args, char **env)
 		cmd_s->cmd = NULL;
 		return (ft_putstr_fd("Empty args\n", 2), 1);
 	}
-	cmd_s->args = ft_split(cmd_args, ' ');
+	cmd_s->args = arg_split(cmd_args);
 	if (cmd_s->args == NULL)
 		return (ft_putstr_fd("Malloc Error\n", 2), 1);
 	if (cmd_s->args[0] == NULL)
@@ -86,12 +86,6 @@ int	cmd_create(t_cmd *cmd_s, char *cmd_args, char **env)
 	return (0);
 }
 
-void	cmd_clean(t_cmd cmd)
-{
-	free_arr(cmd.args);
-	free(cmd.cmd);
-}
-
 void	exec_cmd(t_data cmd_data, t_cmd cmd, char **env)
 {
 	if (execve(cmd.cmd, cmd.args, env) == -1)
@@ -101,4 +95,32 @@ void	exec_cmd(t_data cmd_data, t_cmd cmd, char **env)
 		free(cmd_data.cmd_vars);
 		exit(EXIT_FAILURE);
 	}
+}
+
+int	h_d_handler(t_data cmd_data)
+{
+	char	*line;
+	int		h_d_pipe[2];
+	size_t	lim_len;
+	size_t	line_len;
+
+	if (pipe(h_d_pipe) == -1)
+		return (ft_putstr_fd("pipe error\n", 2), -1);
+	lim_len = ft_strlen(cmd_data.argv[2]);
+	while (1)
+	{
+		line = get_next_line(STDIN_FILENO);
+		if (line)
+			line_len = ft_strlen(line);
+		if (!line || \
+(!ft_strncmp(line, cmd_data.argv[2], (lim_len)) && line_len - 1 == lim_len))
+		{
+			free(line);
+			break ;
+		}
+		write(h_d_pipe[1], line, line_len);
+		free(line);
+	}
+	close(h_d_pipe[1]);
+	return (h_d_pipe[0]);
 }

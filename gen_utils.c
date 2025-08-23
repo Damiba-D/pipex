@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 10:24:42 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/22 16:00:14 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/23 14:13:23 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,12 @@ void	closefds(int pipe[2])
 {
 	close(pipe[0]);
 	close(pipe[1]);
+}
+
+void	cmd_clean(t_cmd cmd)
+{
+	free_arr(cmd.args);
+	free(cmd.cmd);
 }
 
 void	parent_exit(int i, int last_pid, t_cmd *cmd_vars)
