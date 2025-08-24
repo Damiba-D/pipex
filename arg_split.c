@@ -6,13 +6,13 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 20:47:05 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/23 14:07:44 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/24 01:49:29 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-static void	count_apost(char *s, int *i, int *count)
+/* static void	count_apost(char *s, int *i, int *count)
 {
 	int	j;
 
@@ -26,7 +26,7 @@ static void	count_apost(char *s, int *i, int *count)
 			break ;
 		}
 	}
-}
+} */
 
 static unsigned int	count_args(char *s)
 {
@@ -40,7 +40,12 @@ static unsigned int	count_args(char *s)
 	while (s[i] != '\0')
 	{
 		if (s[i] == '\'')
-			count_apost(s, &i, &count);
+		{
+			while (s[i] != '\'')
+				i++;
+			count++;
+			i++;
+		}
 		if (s[i] == '\0')
 			break ;
 		if (s[i] != ' ' && (i == 0 || s[i - 1] == ' '))
@@ -102,13 +107,40 @@ static int	ft_cpy_alloc(char **arr, char *s)
 	return (j);
 }
 
-char	**arg_split(char *s)
+static int	has_unmatched_quote(char *s)
+{
+	int	i;
+
+	i = 0;
+	while (s[i])
+	{
+		if (s[i] == '\'')
+		{
+			i++;
+			while (s[i] && s[i] != '\'')
+				i++;
+			if (s[i] == '\0')
+				return (1);
+		}
+		if (s[i])
+			i++;
+	}
+	return (0);
+}
+
+char	**arg_split(char *s, int *inv_arg)
 {
 	char	**arr;
 	int		i;
 
+	*inv_arg = 1;
 	if (s == NULL)
 		return (NULL);
+	if (has_unmatched_quote(s))
+	{
+		*inv_arg = 2;
+		return (NULL);
+	}
 	arr = (char **)malloc(((count_args(s) + 1) * sizeof(char *)));
 	if (arr == NULL)
 		return (NULL);
@@ -122,7 +154,11 @@ char	**arg_split(char *s)
 /* int main(int argc, char **argv)
 {
 	(void)argc;
-	char **arr = arg_split(argv[1]);
+	int flag;
+	char **arr = arg_split(argv[1], &flag);
+	printf("flag: %d\n", flag);
+	if (arr == NULL)
+		exit(1);
 	int i = 0;
 	while (arr[i] != NULL)
 	{
@@ -130,4 +166,47 @@ char	**arg_split(char *s)
 		i++;
 	}
 	free_arr(arr);
+} */
+
+/* int	main(void)
+{
+	const char	*tests[] = {
+		"echo hello world",        // basic split
+		"echo    spaced   words",  // multiple spaces
+		"echo '' empty",           // empty arg in quotes
+		"echo 'it'\\''s fine'",     // tricky escaped quote style
+		"echo 'unterminated",      // unmatched quote -> should set flag
+		"echo a''b",               // empty quote in middle
+		"echo '  spaces  '",       // quotes preserving spaces
+		"echo mix'and'match",      // concatenated quoted + unquoted
+		"'",
+		NULL
+	};
+	int			t;
+	char		**arr;
+	int			flag;
+	int			i;
+
+	t = 0;
+	while (tests[t])
+	{
+		printf("==== Test %d: [%s] ====\n", t + 1, tests[t]);
+		arr = arg_split((char *)tests[t], &flag);
+		printf("flag: %d\n", flag);
+		if (arr)
+		{
+			i = 0;
+			while (arr[i])
+			{
+				printf("arg[%d]: [%s]\n", i, arr[i]);
+				i++;
+			}
+			free_arr(arr);
+		}
+		else
+			printf("Parsing failed (NULL)\n");
+		printf("\n");
+		t++;
+	}
+	return (0);
 } */

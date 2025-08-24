@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 10:19:36 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/23 14:13:15 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/24 01:39:44 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,14 +59,13 @@ char	*find_command(char *cmd, char **env)
 
 int	cmd_create(t_cmd *cmd_s, char *cmd_args, char **env)
 {
+	int	flag;
+
 	if (!cmd_args || !cmd_args[0])
-	{
-		cmd_s->cmd = NULL;
-		return (ft_putstr_fd("Empty args\n", 2), 1);
-	}
-	cmd_s->args = arg_split(cmd_args);
+		return (cmd_s->cmd = NULL, ft_putstr_fd("Empty args\n", 2), -1);
+	cmd_s->args = arg_split(cmd_args, &flag);
 	if (cmd_s->args == NULL)
-		return (ft_putstr_fd("Malloc Error\n", 2), 1);
+		return (flag);
 	if (cmd_s->args[0] == NULL)
 		return (free(cmd_s->args), 32);
 	cmd_s->cmd = find_command(cmd_s->args[0], env);
@@ -78,7 +77,7 @@ int	cmd_create(t_cmd *cmd_s, char *cmd_args, char **env)
 		{
 			cmd_s->cmd = ft_strdup(cmd_s->args[0]);
 			if (!cmd_s->cmd)
-				return (ft_putstr_fd("AllocE\n", 2), free_arr(cmd_s->args), 1);
+				return (free_arr(cmd_s->args), 1);
 			return (0);
 		}
 		return (perror(cmd_s->args[0]), free_arr(cmd_s->args), 126);

@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/a.out",
-            "args": ["grep ''"],
+            "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "MIMode": "gdb",

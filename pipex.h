@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 17:53:57 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/23 14:14:14 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/23 17:39:50 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ void	cmd_clean(t_cmd cmd);
 void	closefds(int pipe[2]);
 void	parent_exit(int i, int last_pid, t_cmd *cmd_vars);
 char	*find_command(char *cmd, char **env);
-char	**arg_split(char *s);
+char	**arg_split(char *s, int *inv_arg);
 int		cmd_create(t_cmd *cmd_s, char *cmd_args, char **env);
 void	exec_cmd(t_data cmd_data, t_cmd cmd, char **env);
 int		h_d_handler(t_data cmd_data);

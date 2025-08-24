@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 09:49:34 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/22 16:24:58 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/23 21:45:40 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,10 @@ static void	cmdmid_exit1(t_data cmd_data, int pipes[2][2], int exit_code)
 	closefds(pipes[0]);
 	closefds(pipes[1]);
 	free(cmd_data.cmd_vars);
+	if (exit_code == 1)
+		ft_putstr_fd("Malloc Error\n", 2);
+	if (exit_code == 2)
+		ft_putstr_fd("Missing close quote\n", 2);
 	if (exit_code == 32)
 		exit_code = 127;
 	exit(exit_code);
