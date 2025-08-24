@@ -2,10 +2,13 @@
 CC		= gcc
 CFLAGS	= -g -Wall -Wextra -Werror
 
+# Tell Make where to find source files
+VPATH = . arg_split
+
 # Project files
 NAME	= pipex
-SRCs	= pipex.c gen_utils.c arg_split.c cmdutils.c cmd1.c cmdmid.c cmd2.c
-OBJs	= $(addprefix obj/, $(SRCs:.c=.o))
+SRCs	= pipex.c gen_utils.c arg_split/arg_split.c arg_split/copying.c arg_split/counting.c cmdutils.c cmd1.c cmdmid.c cmd2.c
+OBJs	= $(addprefix obj/, $(notdir $(SRCs:.c=.o)))
 
 # Library paths
 LIBFT_DIR	= libft

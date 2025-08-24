@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 09:45:42 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/23 21:45:05 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/24 16:10:17 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ static void	cmd1_exit2(t_data cmd_data, int pipe[2], int exit_code)
 	if (exit_code == 1)
 		ft_putstr_fd("Malloc Error\n", 2);
 	if (exit_code == 2)
-		ft_putstr_fd("Missing close quote\n", 2);
+		ft_putstr_fd("Invalid cmd arg\n", 2);
 	if (exit_code == 32)
 		exit_code = 127;
 	exit(exit_code);
