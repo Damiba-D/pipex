@@ -1,5 +1,5 @@
 # Compiler and flags
-CC		= gcc
+CC		= cc
 CFLAGS	= -g -Wall -Wextra -Werror
 
 # Tell Make where to find source files
