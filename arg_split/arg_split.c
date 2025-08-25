@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/24 15:11:23 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/24 17:04:42 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/25 11:57:46 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,8 @@ static int	has_unmatched_quote(char *s)
 	in_quote = 0;
 	while (s[i])
 	{
-		if (s[i] == '\\')
+		if (!in_quote && s[i] == '\\' && s[i + 1])
 		{
-			if (!s[i + 1])
-				return (1);
 			i += 2;
 			continue ;
 		}

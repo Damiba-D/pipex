@@ -6,35 +6,45 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/24 15:03:20 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/24 16:55:26 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/25 12:03:51 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "arg_split.h"
 
+static void	cpy_in_quote(char *dst, char *s, int *i, int *k)
+{
+	*i += 1;
+	while (s[*i] && s[*i] != '\'')
+	{
+		dst[*k] = s[*i];
+		*i += 1;
+		*k += 1;
+	}
+	*i += 1;
+}
+
 /* Copy token into arr[j], removing quotes/escapes */
 static void	copy_token(char *dst, char *s, int *i)
 {
-	int	in_quote;
 	int	k;
 
-	in_quote = 0;
 	k = 0;
-	while (s[*i] && (in_quote || s[*i] != ' '))
+	while (s[*i] && s[*i] != ' ')
 	{
-		if (s[*i] == '\'' && (in_quote || s[*i + 1] != '\0'))
-		{
-			in_quote = !in_quote;
-			*i += 1;
-		}
-		else if (!in_quote && s[*i] == '\\' && s[*i + 1])
+		if (s[*i] == '\'')
+			cpy_in_quote(dst, s, i, &k);
+		else if (s[*i] == '\\' && s[*i + 1])
 		{
 			dst[k++] = s[*i + 1];
 			*i += 2;
 		}
 		else
 		{
-			dst[k++] = s[*i];
+			if (s[*i] == '\\' && !s[*i + 1])
+				dst[k++] = ' ';
+			else
+				dst[k++] = s[*i];
 			*i += 1;
 		}
 	}
