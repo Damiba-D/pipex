@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 22:07:02 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/22 15:52:12 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/26 12:27:24 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,11 @@ void	parsing(t_data *cmd_data, int argc, char **argv, char **env)
 	cmd_data->h_d_mode = 0;
 	cmd_data->argv = argv;
 	cmd_data->env = env;
+	if (argc < 6 && !ft_strncmp(argv[1], "here_doc", 9))
+	{
+		ft_putstr_fd("Insufficient args\n", 2);
+		exit(1);
+	}
 	if (!ft_strncmp(argv[1], "here_doc", 9))
 	{
 		cmd_data->cmd1_pos += 1;

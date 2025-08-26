@@ -6,7 +6,7 @@
 /*   By: ddamiba <ddamiba@student.42lisboa.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 09:45:42 by ddamiba           #+#    #+#             */
-/*   Updated: 2025/08/24 16:10:17 by ddamiba          ###   ########.fr       */
+/*   Updated: 2025/08/26 12:29:55 by ddamiba          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ static void	cmd1_exit1(t_data cmd_data, int pipe[2], int file_error)
 static void	cmd1_exit2(t_data cmd_data, int pipe[2], int exit_code)
 {
 	close(pipe[1]);
+	close(cmd_data.cmd_vars[0].fd);
 	free(cmd_data.cmd_vars);
 	if (exit_code == 1)
 		ft_putstr_fd("Malloc Error\n", 2);
